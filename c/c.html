@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Mentor Church of Christ devotional radio</title>
+
+<style>
+
+body{
+margin:0;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+background:black;
+color:white;
+font-family:Arial;
+}
+
+.player{
+text-align:center;
+max-width:700px;
+}
+
+.title{
+font-size:28px;
+margin-bottom:15px;
+}
+
+.info{
+margin-bottom:15px;
+font-size:18px;
+}
+
+.controls button{
+margin:8px;
+padding:10px 20px;
+font-size:16px;
+background:black;
+color:white;
+border:1px solid white;
+cursor:pointer;
+}
+
+.controls button:hover{
+background:white;
+color:black;
+}
+
+.progress{
+width:420px;
+height:10px;
+background:#222;
+margin:18px auto 0 auto;
+border:1px solid white;
+cursor:pointer;
+position:relative;
+}
+
+.bar{
+height:100%;
+width:0%;
+background:white;
+transition:width 0.15s linear;
+}
+
+.time{
+margin-top:6px;
+font-size:14px;
+}
+
+.scripture{
+margin-top:25px;
+font-style:italic;
+line-height:1.5;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="player">
+
+<div class="title">Mentor Church of Christ devotional radio</div>
+
+<div class="info">
+<div>Your playing track #: <span id="currentTrack">0</span></div>
+<div>Total tracks in playlist: <span id="trackCount">0</span></div>
+<div>Total runtime: 2 Hours 32 Minutes</div>
+</div>
+
+<audio id="player"></audio>
+
+<div class="controls">
+<button onclick="prevTrack()">Back</button>
+<button onclick="togglePlay()">Play / Pause</button>
+<button onclick="nextTrack()">Forward</button>
+</div>
+
+<div class="progress" id="progress">
+<div class="bar" id="bar"></div>
+</div>
+
+<div class="time">
+<span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+</div>
+
+<div class="scripture">
+
+<br>
+
+“Therefore we are buried with him by baptism into death: that like as Christ was raised up from the dead by the glory of the Father, even so we also should walk in newness of life.”  
+
+– Romans 6:4
+
+</div>
+
+</div>
+
+<script>
+
+const API = "https://api.github.com/repos/mentorchurch/cc/contents/c"
+const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/c/"
+
+let playlist = []
+let current = 0
+
+const player = document.getElementById("player")
+const currentTrack = document.getElementById("currentTrack")
+const trackCount = document.getElementById("trackCount")
+
+const progress = document.getElementById("progress")
+const bar = document.getElementById("bar")
+
+const currentTimeText = document.getElementById("currentTime")
+const durationText = document.getElementById("duration")
+
+function shuffle(array){
+
+for(let i=array.length-1;i>0;i--){
+
+const j=Math.floor(Math.random()*(i+1))
+
+;[array[i],array[j]]=[array[j],array[i]]
+
+}
+
+}
+
+async function buildPlaylist(){
+
+const response = await fetch(API)
+
+const files = await response.json()
+
+playlist = files
+.filter(f => f.name.endsWith(".mp3"))
+.map(f => f.name)
+
+shuffle(playlist)
+
+trackCount.textContent = playlist.length
+
+startTrack()
+
+}
+
+function startTrack(){
+
+player.src = BASE + playlist[current]
+
+currentTrack.textContent = current + 1
+
+player.play().catch(()=>{})
+
+}
+
+function nextTrack(){
+
+current++
+
+if(current >= playlist.length){
+
+shuffle(playlist)
+
+current = 0
+
+}
+
+startTrack()
+
+}
+
+function prevTrack(){
+
+current--
+
+if(current < 0){
+
+current = playlist.length - 1
+
+}
+
+startTrack()
+
+}
+
+function togglePlay(){
+
+if(player.paused){
+
+player.play()
+
+}else{
+
+player.pause()
+
+}
+
+}
+
+player.addEventListener("ended", nextTrack)
+
+player.addEventListener("timeupdate", ()=>{
+
+if(!player.duration) return
+
+const percent = (player.currentTime / player.duration) * 100
+
+bar.style.width = percent + "%"
+
+currentTimeText.textContent = formatTime(player.currentTime)
+
+durationText.textContent = formatTime(player.duration)
+
+})
+
+progress.addEventListener("click",(e)=>{
+
+const rect = progress.getBoundingClientRect()
+
+const clickX = e.clientX - rect.left
+
+const percent = clickX / rect.width
+
+player.currentTime = percent * player.duration
+
+})
+
+function formatTime(seconds){
+
+const m = Math.floor(seconds/60)
+
+const s = Math.floor(seconds%60)
+
+return m + ":" + (s<10 ? "0"+s : s)
+
+}
+
+window.onload = buildPlaylist
+
+</script>
+
+</body>
+</html>
