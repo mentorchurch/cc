@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mentor Church of Christ devotional radio</title>
+
+<title>MENTOR CHURCH OF CHRIST DEVOTIONAL RADIO</title>
 
 <style>
+
 body{
 margin:0;
 min-height:100vh;
@@ -19,7 +23,7 @@ font-family:Arial, Helvetica, sans-serif;
 
 .player{
 text-align:center;
-width:90vw;
+width:92vw;
 max-width:900px;
 padding:20px;
 box-sizing:border-box;
@@ -27,7 +31,9 @@ box-sizing:border-box;
 
 .title{
 font-size:clamp(22px,4vw,34px);
+line-height:1.2;
 margin-bottom:15px;
+text-transform:uppercase;
 }
 
 .info{
@@ -40,11 +46,11 @@ line-height:1.5;
 display:flex;
 justify-content:center;
 flex-wrap:wrap;
-gap:10px;
+gap:12px;
 }
 
 .controls button{
-padding:10px 20px;
+padding:10px 22px;
 font-size:clamp(14px,2vw,18px);
 background:black;
 color:white;
@@ -57,11 +63,17 @@ background:white;
 color:black;
 }
 
+.progressWrap{
+display:flex;
+justify-content:center;
+width:100%;
+margin-top:22px;
+}
+
 .progress{
-width:min(90vw,600px);
+width:min(92vw,620px);
 height:10px;
 background:#222;
-margin:18px auto 0 auto;
 border:1px solid white;
 cursor:pointer;
 position:relative;
@@ -80,38 +92,44 @@ font-size:clamp(12px,2vw,16px);
 }
 
 .scripture{
-margin-top:25px;
+margin-top:28px;
 font-style:italic;
-line-height:1.5;
+line-height:1.6;
 font-size:clamp(14px,2.2vw,18px);
 padding:0 10px;
 }
+
 </style>
+
 </head>
 
 <body>
 
 <div class="player">
 
-<div class="title">Mentor Church of Christ<BR> 
-Devotional Radio</div>
+<div class="title">
+MENTOR CHURCH OF CHRIST<br>
+DEVOTIONAL RADIO
+</div>
 
 <div class="info">
-<div>Your playing track #: <span id="currentTrack">0</span></div>
-<div>Total tracks in playlist: <span id="trackCount">0</span></div>
-<div>Total runtime: 2 Hours 32 Minutes</div>
+<div>YOUR PLAYING TRACK #: <span id="currentTrack">0</span></div>
+<div>TOTAL TRACKS IN PLAYLIST: <span id="trackCount">0</span></div>
+<div>TOTAL RUNTIME: 2 HOURS 32 MINUTES</div>
 </div>
 
 <audio id="player" preload="metadata"></audio>
 
 <div class="controls">
-<button onclick="prevTrack()">Back</button>
-<button onclick="togglePlay()">Play / Pause</button>
-<button onclick="nextTrack()">Forward</button>
+<button onclick="prevTrack()">BACK</button>
+<button onclick="togglePlay()">PLAY / PAUSE</button>
+<button onclick="nextTrack()">FORWARD</button>
 </div>
 
+<div class="progressWrap">
 <div class="progress" id="progress">
 <div class="bar" id="bar"></div>
+</div>
 </div>
 
 <div class="time">
@@ -119,167 +137,189 @@ Devotional Radio</div>
 </div>
 
 <div class="scripture">
-<br>
+
 “Therefore we are buried with him by baptism into death: that like as Christ was raised up from the dead by the glory of the Father, even so we also should walk in newness of life.”
+
 <br><br>
+
 – Romans 6:4
+
 </div>
 
 </div>
 
 <script>
-const API = "https://api.github.com/repos/mentorchurch/cc/contents/c";
-const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/c/";
 
-let playlist = [];
-let current = 0;
+const API="https://api.github.com/repos/mentorchurch/cc/contents/c"
+const BASE="https://raw.githubusercontent.com/mentorchurch/cc/main/c/"
 
-const player = document.getElementById("player");
-const currentTrack = document.getElementById("currentTrack");
-const trackCount = document.getElementById("trackCount");
-const progress = document.getElementById("progress");
-const bar = document.getElementById("bar");
-const currentTimeText = document.getElementById("currentTime");
-const durationText = document.getElementById("duration");
+let playlist=[]
+let current=0
 
-/* GENERATE CROSS FROM CODE */
-function makeCrossDataUrl(){
-const svg = `
+const player=document.getElementById("player")
+const currentTrack=document.getElementById("currentTrack")
+const trackCount=document.getElementById("trackCount")
+
+const progress=document.getElementById("progress")
+const bar=document.getElementById("bar")
+
+const currentTimeText=document.getElementById("currentTime")
+const durationText=document.getElementById("duration")
+
+function makeCross(){
+
+const svg=`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="black"/>
-  <rect x="216" y="40" width="80" height="432" fill="white"/>
-  <rect x="116" y="176" width="280" height="80" fill="white"/>
-</svg>
-`;
-return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+<rect width="512" height="512" fill="black"/>
+<rect x="216" y="40" width="80" height="432" fill="white"/>
+<rect x="116" y="176" width="280" height="80" fill="white"/>
+</svg>`
+
+return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg)
+
 }
 
-const crossDataUrl = makeCrossDataUrl();
-
-/* Set favicon from generated code */
-function setGeneratedIcons(){
-const favicon = document.createElement("link");
-favicon.rel = "icon";
-favicon.href = crossDataUrl;
-document.head.appendChild(favicon);
-
-const appleIcon = document.createElement("link");
-appleIcon.rel = "apple-touch-icon";
-appleIcon.href = crossDataUrl;
-document.head.appendChild(appleIcon);
-}
+const cross=makeCross()
 
 function shuffle(array){
+
 for(let i=array.length-1;i>0;i--){
-const j=Math.floor(Math.random()*(i+1));
-[array[i],array[j]] = [array[j],array[i]];
+
+const j=Math.floor(Math.random()*(i+1))
+
+;[array[i],array[j]]=[array[j],array[i]]
+
 }
+
 }
 
 async function buildPlaylist(){
-try{
-const response = await fetch(API);
-const files = await response.json();
 
-playlist = files
-.filter(f => f.name.toLowerCase().endsWith(".mp3"))
-.map(f => f.name);
+const response=await fetch(API)
 
-shuffle(playlist);
-trackCount.textContent = playlist.length;
+const files=await response.json()
 
-if(playlist.length > 0){
-startTrack();
-}
-}catch(err){
-console.error("Playlist load failed:", err);
-}
+playlist=files
+.filter(f=>f.name.endsWith(".mp3"))
+.map(f=>f.name)
+
+shuffle(playlist)
+
+trackCount.textContent=playlist.length
+
+startTrack()
+
 }
 
 function startTrack(){
-if(!playlist.length) return;
 
-player.src = BASE + encodeURIComponent(playlist[current]);
-currentTrack.textContent = current + 1;
+player.src=BASE+playlist[current]
+
+currentTrack.textContent=current+1
 
 if("mediaSession" in navigator){
-navigator.mediaSession.metadata = new MediaMetadata({
-title: "Mentor Church of Christ Devotional Radio",
-artist: "Mentor Church of Christ",
-album: "Devotional Broadcast",
-artwork: [
-{ src: crossDataUrl, sizes: "512x512", type: "image/svg+xml" }
-]
-});
 
-navigator.mediaSession.setActionHandler("previoustrack", prevTrack);
-navigator.mediaSession.setActionHandler("nexttrack", nextTrack);
-navigator.mediaSession.setActionHandler("play", () => player.play());
-navigator.mediaSession.setActionHandler("pause", () => player.pause());
+navigator.mediaSession.metadata=new MediaMetadata({
+title:"Mentor Church of Christ Devotional Radio",
+artist:"Mentor Church of Christ",
+album:"Devotional Broadcast",
+artwork:[
+{src:cross,sizes:"512x512",type:"image/svg+xml"}
+]
+})
+
 }
 
-player.play().catch(() => {});
+player.play().catch(()=>{})
+
 }
 
 function nextTrack(){
-if(!playlist.length) return;
 
-current++;
-if(current >= playlist.length){
-shuffle(playlist);
-current = 0;
+current++
+
+if(current>=playlist.length){
+
+shuffle(playlist)
+
+current=0
+
 }
-startTrack();
+
+startTrack()
+
 }
 
 function prevTrack(){
-if(!playlist.length) return;
 
-current--;
-if(current < 0){
-current = playlist.length - 1;
+current--
+
+if(current<0){
+
+current=playlist.length-1
+
 }
-startTrack();
+
+startTrack()
+
 }
 
 function togglePlay(){
+
 if(player.paused){
-player.play().catch(() => {});
+
+player.play()
+
 }else{
-player.pause();
+
+player.pause()
+
 }
+
 }
 
-player.addEventListener("ended", nextTrack);
+player.addEventListener("ended",nextTrack)
 
-player.addEventListener("timeupdate", () => {
-if(!player.duration) return;
+player.addEventListener("timeupdate",()=>{
 
-const percent = (player.currentTime / player.duration) * 100;
-bar.style.width = percent + "%";
+if(!player.duration) return
 
-currentTimeText.textContent = formatTime(player.currentTime);
-durationText.textContent = formatTime(player.duration);
-});
+const percent=(player.currentTime/player.duration)*100
 
-progress.addEventListener("click", (e) => {
-if(!player.duration) return;
+bar.style.width=percent+"%"
 
-const rect = progress.getBoundingClientRect();
-const clickX = e.clientX - rect.left;
-const percent = clickX / rect.width;
-player.currentTime = percent * player.duration;
-});
+currentTimeText.textContent=formatTime(player.currentTime)
+
+durationText.textContent=formatTime(player.duration)
+
+})
+
+progress.addEventListener("click",(e)=>{
+
+const rect=progress.getBoundingClientRect()
+
+const clickX=e.clientX-rect.left
+
+const percent=clickX/rect.width
+
+player.currentTime=percent*player.duration
+
+})
 
 function formatTime(seconds){
-const m = Math.floor(seconds / 60);
-const s = Math.floor(seconds % 60);
-return m + ":" + (s < 10 ? "0" + s : s);
+
+const m=Math.floor(seconds/60)
+
+const s=Math.floor(seconds%60)
+
+return m+":"+(s<10?"0"+s:s)
+
 }
 
-setGeneratedIcons();
-window.onload = buildPlaylist;
+window.onload=buildPlaylist
+
 </script>
 
 </body>
+
 </html>
