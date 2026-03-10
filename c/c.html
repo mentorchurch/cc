@@ -137,9 +137,7 @@ color:black;
 
 <body>
 
-<br>
-<br>
-<br>
+<br><br><br>
 
 <div class="player">
 
@@ -150,7 +148,7 @@ DEVOTIONAL RADIO
 
 <div class="info">
 <div>Your playing track #: <span id="currentTrack">0</span></div>
-<div>Total tracks in playlist: <span id=" Randomized trackCount">0</span></div>
+<div>Total tracks in playlist: <span id="trackCount">0</span></div>
 <div>Runtime 4:52</div>
 </div>
 
@@ -190,7 +188,7 @@ DEVOTIONAL RADIO
 
 <div class="contact">
 <br>
-Mentor Church of Christ: 440-255-9049 
+Mentor Church of Christ: 440-255-9049  
 7201 Burridge Avenue Mentor, OH 44060
 </div>
 
@@ -198,8 +196,8 @@ Mentor Church of Christ: 440-255-9049
 
 <script>
 
-const API="https://api.github.com/repos/mentorchurch/cc/contents/c"
-const BASE="https://raw.githubusercontent.com/mentorchurch/cc/main/c/"
+const API="https://api.github.com/repos/mentorchurch/cc/contents/"
+const BASE="https://raw.githubusercontent.com/mentorchurch/cc/main/"
 
 let playlist=[]
 let current=0
@@ -227,8 +225,11 @@ const response=await fetch(API)
 const files=await response.json()
 
 playlist=files
-.filter(f=>f.name.endsWith(".mp3"))
-.map(f=>f.name)
+.filter(file=>{
+const name=file.name.toLowerCase()
+return name.startsWith("c") && name.endsWith(".mp3")
+})
+.map(file=>file.name)
 
 shuffle(playlist)
 
@@ -242,6 +243,7 @@ function startTrack(){
 
 player.src=BASE+playlist[current]
 currentTrack.textContent=current+1
+
 player.play().catch(()=>{})
 
 }
