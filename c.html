@@ -8,7 +8,6 @@
 
 <title>MENTOR CHURCH OF CHRIST DEVOTIONAL RADIO</title>
 
-<!-- Christian cross icon (offset crossbar) -->
 <link rel="icon" type="image/svg+xml" href='data:image/svg+xml,
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
 <rect width="180" height="180" fill="black"/>
@@ -264,16 +263,17 @@ shuffle(playlist)
 
 trackCount.textContent=playlist.length
 
-startTrack()
+loadTrack()
 
 }
 
-function startTrack(){
+function loadTrack(){
+
+if(playlist.length===0) return
 
 player.src=BASE+playlist[current]
+player.load()
 currentTrack.textContent=current+1
-
-player.play().catch(()=>{})
 
 }
 
@@ -286,7 +286,8 @@ shuffle(playlist)
 current=0
 }
 
-startTrack()
+loadTrack()
+player.play().catch(()=>{})
 
 }
 
@@ -298,14 +299,19 @@ if(current<0){
 current=playlist.length-1
 }
 
-startTrack()
+loadTrack()
+player.play().catch(()=>{})
 
 }
 
 function togglePlay(){
 
+if(!player.src){
+loadTrack()
+}
+
 if(player.paused){
-player.play()
+player.play().catch(()=>{})
 }else{
 player.pause()
 }
