@@ -134,6 +134,21 @@ background:white;
 color:black;
 }
 
+.making{
+margin-top:12px;
+text-align:center;
+}
+
+.making a{
+color:white;
+text-decoration:underline;
+}
+
+.status{
+margin-top:10px;
+font-size:14px;
+}
+
 </style>
 
 </head>
@@ -150,9 +165,10 @@ DEVOTIONAL RADIO
 </div>
 
 <div class="info">
-<div>Your playing track #: <span id="currentTrack">0</span></div>
-<div>Total tracks in random playlist: 95</div>
-<div>Runtime; 4hr 52min</div>
+<div>You're playing track #: <span id="currentTrack">0</span></div>
+<div>Total tracks in random playlist: <span id="totalTracks">0</span></div>
+<div>Runtime: 4hr 52min</div>
+<div class="status" id="status">Loading playlist...</div>
 </div>
 
 <audio id="player" preload="metadata"></audio>
@@ -178,12 +194,10 @@ DEVOTIONAL RADIO
 </div>
 
 <div class="nav">
-
 <a href="who.html" target="_blank">WHAT WE BELIEVE</a>
 <a href="https://drive.google.com/drive/folders/14kMswUspRipk9m5xHb2pmtIbK8ZtV2Pg" target="_blank">DOWNLOAD HYMNS</a>
 <a href="kjv.pdf" target="_blank">READ BIBLE</a>
 <a href="http://www.mentorchurchofchrist.com" target="_blank">CHURCH HOME</a>
-
 </div>
 
 <div class="contact">
@@ -192,7 +206,9 @@ Mentor Church of Christ:<br>
 440-255-9049<br>
 7201 Burridge Avenue Mentor, OH 44060
 </div>
+
 <br>
+
 <div class="making">
 <a href="why.html" target="_blank">The making of this site</a>
 </div>
@@ -201,122 +217,175 @@ Mentor Church of Christ:<br>
 
 <script>
 
-const API="https://api.github.com/repos/mentorchurch/cc/contents/"
-const BASE="https://raw.githubusercontent.com/mentorchurch/cc/main/"
+const API = "https://api.github.com/repos/mentorchurch/cc/contents/";
+const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/";
 
-let playlist=[]
-let current=0
-let ready=false
+let playlist = [];
+let current = 0;
+let ready = false;
 
-const player=document.getElementById("player")
-const currentTrack=document.getElementById("currentTrack")
+const player = document.getElementById("player");
+const currentTrack = document.getElementById("currentTrack");
+const totalTracks = document.getElementById("totalTracks");
+const statusText = document.getElementById("status");
 
-const progress=document.getElementById("progress")
-const bar=document.getElementById("bar")
+const progress = document.getElementById("progress");
+const bar = document.getElementById("bar");
 
-const currentTimeText=document.getElementById("currentTime")
-const durationText=document.getElementById("duration")
+const currentTimeText = document.getElementById("currentTime");
+const durationText = document.getElementById("duration");
+
+const audioExtensions = [".mp3", ".m4a", ".wav", ".ogg", ".aac", ".flac"];
+
+function isAudioFile(filename){
+const lower = filename.toLowerCase();
+return audioExtensions.some(ext => lower.endsWith(ext));
+}
 
 function shuffle(array){
-for(let i=array.length-1;i>0;i--){
-const j=Math.floor(Math.random()*(i+1))
-[array[i],array[j]]=[array[j],array[i]]
+for(let i = array.length - 1; i > 0; i--){
+const j = Math.floor(Math.random() * (i + 1));
+[array[i], array[j]] = [array[j], array[i]];
 }
 }
 
 async function buildPlaylist(){
+try{
+statusText.textContent = "Loading playlist...";
 
-const response=await fetch(API)
-const files=await response.json()
+const response = await fetch(API, { cache: "no-store" });
 
-playlist=files
-.filter(file=>{
-const name=file.name.toLowerCase()
-return name.startsWith("c") && name.endsWith(".mp3")
-})
-.map(file=>file.name)
+if(!response.ok){
+throw new Error("GitHub API request failed.");
+}
 
-shuffle(playlist)
+const files = await response.json();
 
-/* random start */
-current=Math.floor(Math.random()*playlist.length)
+playlist = files
+.filter(file => file.type === "file" && isAudioFile(file.name))
+.map(file => file.name);
 
-ready=true
+if(playlist.length === 0){
+statusText.textContent = "No audio files found.";
+totalTracks.textContent = "0";
+return;
+}
 
+shuffle(playlist);
+
+current = 0;
+ready = true;
+
+totalTracks.textContent = playlist.length;
+currentTrack.textContent = current + 1;
+statusText.textContent = "Playlist ready.";
+
+}catch(error){
+console.error(error);
+statusText.textContent = "Could not load playlist.";
+totalTracks.textContent = "0";
+}
+}
+
+function resetProgress(){
+bar.style.width = "0%";
+currentTimeText.textContent = "0:00";
+durationText.textContent = "0:00";
 }
 
 function loadTrack(){
-player.src=BASE+playlist[current]
-player.load()
-currentTrack.textContent=current+1
+if(!ready || playlist.length === 0) return;
+
+player.src = BASE + encodeURIComponent(playlist[current]);
+player.load();
+
+currentTrack.textContent = current + 1;
+resetProgress();
+}
+
+async function playCurrentTrack(){
+try{
+await player.play();
+}catch(error){
+console.error("Playback failed:", error);
+}
 }
 
 function nextTrack(){
-if(!ready) return
-current++
-if(current>=playlist.length) current=0
-loadTrack()
-player.play()
+if(!ready || playlist.length === 0) return;
+
+current++;
+if(current >= playlist.length){
+current = 0;
+}
+
+loadTrack();
+playCurrentTrack();
 }
 
 function prevTrack(){
-if(!ready) return
-current--
-if(current<0) current=playlist.length-1
-loadTrack()
-player.play()
+if(!ready || playlist.length === 0) return;
+
+current--;
+if(current < 0){
+current = playlist.length - 1;
+}
+
+loadTrack();
+playCurrentTrack();
 }
 
 function togglePlay(){
-
-if(!ready) return
+if(!ready || playlist.length === 0) return;
 
 if(!player.src){
-loadTrack()
+loadTrack();
 }
 
 if(player.paused){
-player.play()
+playCurrentTrack();
 }else{
-player.pause()
+player.pause();
+}
 }
 
+player.addEventListener("ended", () => {
+nextTrack();
+});
+
+player.addEventListener("timeupdate", () => {
+if(!player.duration || isNaN(player.duration)) return;
+
+const percent = (player.currentTime / player.duration) * 100;
+bar.style.width = percent + "%";
+
+currentTimeText.textContent = formatTime(player.currentTime);
+durationText.textContent = formatTime(player.duration);
+});
+
+player.addEventListener("loadedmetadata", () => {
+if(player.duration && !isNaN(player.duration)){
+durationText.textContent = formatTime(player.duration);
 }
+});
 
-player.addEventListener("ended",nextTrack)
+progress.addEventListener("click", (e) => {
+if(!player.duration || isNaN(player.duration)) return;
 
-player.addEventListener("timeupdate",()=>{
+const rect = progress.getBoundingClientRect();
+const clickX = e.clientX - rect.left;
+const percent = clickX / rect.width;
 
-if(!player.duration) return
-
-const percent=(player.currentTime/player.duration)*100
-bar.style.width=percent+"%"
-
-currentTimeText.textContent=formatTime(player.currentTime)
-durationText.textContent=formatTime(player.duration)
-
-})
-
-progress.addEventListener("click",(e)=>{
-
-const rect=progress.getBoundingClientRect()
-const clickX=e.clientX-rect.left
-const percent=clickX/rect.width
-
-player.currentTime=percent*player.duration
-
-})
+player.currentTime = percent * player.duration;
+});
 
 function formatTime(seconds){
-
-const m=Math.floor(seconds/60)
-const s=Math.floor(seconds%60)
-
-return m+":"+(s<10?"0"+s:s)
-
+const mins = Math.floor(seconds / 60);
+const secs = Math.floor(seconds % 60);
+return mins + ":" + (secs < 10 ? "0" + secs : secs);
 }
 
-buildPlaylist()
+buildPlaylist();
 
 </script>
 
