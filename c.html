@@ -236,7 +236,6 @@ return name.startsWith("c") && name.endsWith(".mp3")
 .map(file=>file.name)
 
 shuffle(playlist)
-current=0
 
 }
 
@@ -246,44 +245,27 @@ player.load()
 currentTrack.textContent=current+1
 }
 
-async function nextTrack(){
-
-if(playlist.length===0){
-await buildPlaylist()
-}
-
+function nextTrack(){
 current++
-
 if(current>=playlist.length){
 current=0
 }
-
 loadTrack()
 player.play()
-
 }
 
-async function prevTrack(){
-
-if(playlist.length===0){
-await buildPlaylist()
-}
-
+function prevTrack(){
 current--
-
 if(current<0){
 current=playlist.length-1
 }
-
 loadTrack()
 player.play()
-
 }
 
-async function togglePlay(){
+function togglePlay(){
 
-if(playlist.length===0){
-await buildPlaylist()
+if(!player.src){
 loadTrack()
 }
 
@@ -328,7 +310,9 @@ return m+":"+(s<10?"0"+s:s)
 
 }
 
-buildPlaylist()
+window.addEventListener("load", async ()=>{
+await buildPlaylist()
+})
 
 </script>
 
