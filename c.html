@@ -209,7 +209,6 @@ let current=0
 
 const player=document.getElementById("player")
 const currentTrack=document.getElementById("currentTrack")
-const trackCount=document.getElementById("trackCount")
 
 const progress=document.getElementById("progress")
 const bar=document.getElementById("bar")
@@ -226,8 +225,6 @@ const j=Math.floor(Math.random()*(i+1))
 
 async function buildPlaylist(){
 
-if(playlist.length>0) return
-
 const response=await fetch(API)
 const files=await response.json()
 
@@ -239,27 +236,25 @@ return name.startsWith("c") && name.endsWith(".mp3")
 .map(file=>file.name)
 
 shuffle(playlist)
-
-trackCount.textContent=playlist.length
+current=0
 
 }
 
 function loadTrack(){
-
 player.src=BASE+playlist[current]
 player.load()
 currentTrack.textContent=current+1
-
 }
 
 async function nextTrack(){
 
+if(playlist.length===0){
 await buildPlaylist()
+}
 
 current++
 
 if(current>=playlist.length){
-shuffle(playlist)
 current=0
 }
 
@@ -270,7 +265,9 @@ player.play()
 
 async function prevTrack(){
 
+if(playlist.length===0){
 await buildPlaylist()
+}
 
 current--
 
@@ -285,9 +282,8 @@ player.play()
 
 async function togglePlay(){
 
+if(playlist.length===0){
 await buildPlaylist()
-
-if(!player.src){
 loadTrack()
 }
 
