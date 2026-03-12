@@ -8,8 +8,20 @@
 
 <title>MENTOR CHURCH OF CHRIST DEVOTIONAL RADIO</title>
 
-<link rel="icon" type="image/png" href="./cross.png">
-<link rel="apple-touch-icon" href="./cross.png">
+<!-- Christian cross icon (offset crossbar) -->
+<link rel="icon" type="image/svg+xml" href='data:image/svg+xml,
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+<rect width="180" height="180" fill="black"/>
+<rect x="84" y="20" width="12" height="140" fill="white"/>
+<rect x="45" y="60" width="90" height="12" fill="white"/>
+</svg>'>
+
+<link rel="apple-touch-icon" href='data:image/svg+xml,
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+<rect width="180" height="180" fill="black"/>
+<rect x="84" y="20" width="12" height="140" fill="white"/>
+<rect x="45" y="60" width="90" height="12" fill="white"/>
+</svg>'>
 
 <style>
 
@@ -163,7 +175,7 @@ DEVOTIONAL RADIO
 <div class="info">
 <div>Your playing track #: <span id="currentTrack">0</span></div>
 <div>Total tracks in random playlist: <span id="trackCount">0</span></div>
-<div>Runtime: 4hr 52min</div>
+<div>Runtime 4:52</div>
 </div>
 
 <audio id="player" preload="metadata"></audio>
@@ -218,7 +230,6 @@ const BASE="https://raw.githubusercontent.com/mentorchurch/cc/main/"
 
 let playlist=[]
 let current=0
-let playlistLoaded=false
 
 const player=document.getElementById("player")
 const currentTrack=document.getElementById("currentTrack")
@@ -252,15 +263,12 @@ return name.startsWith("c") && name.endsWith(".mp3")
 shuffle(playlist)
 
 trackCount.textContent=playlist.length
-playlistLoaded=true
 
 startTrack()
 
 }
 
 function startTrack(){
-
-if(playlist.length===0) return
 
 player.src=BASE+playlist[current]
 currentTrack.textContent=current+1
@@ -270,8 +278,6 @@ player.play().catch(()=>{})
 }
 
 function nextTrack(){
-
-if(!playlistLoaded) return
 
 current++
 
@@ -286,8 +292,6 @@ startTrack()
 
 function prevTrack(){
 
-if(!playlistLoaded) return
-
 current--
 
 if(current<0){
@@ -298,20 +302,10 @@ startTrack()
 
 }
 
-async function togglePlay(){
-
-if(!playlistLoaded){
-await buildPlaylist()
-return
-}
-
-if(!player.src){
-startTrack()
-return
-}
+function togglePlay(){
 
 if(player.paused){
-player.play().catch(()=>{})
+player.play()
 }else{
 player.pause()
 }
