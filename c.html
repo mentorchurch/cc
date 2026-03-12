@@ -8,6 +8,21 @@
 
 <title>MENTOR CHURCH OF CHRIST DEVOTIONAL RADIO</title>
 
+<!-- Christian cross icon (offset crossbar) -->
+<link rel="icon" type="image/svg+xml" href='data:image/svg+xml,
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+<rect width="180" height="180" fill="black"/>
+<rect x="84" y="20" width="12" height="140" fill="white"/>
+<rect x="45" y="60" width="90" height="12" fill="white"/>
+</svg>'>
+
+<link rel="apple-touch-icon" href='data:image/svg+xml,
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+<rect width="180" height="180" fill="black"/>
+<rect x="84" y="20" width="12" height="140" fill="white"/>
+<rect x="45" y="60" width="90" height="12" fill="white"/>
+</svg>'>
+
 <style>
 
 body{
@@ -103,6 +118,17 @@ font-size:clamp(13px,2vw,16px);
 text-align:center;
 }
 
+.making{
+margin-top:18px;
+font-size:clamp(13px,2vw,16px);
+text-align:center;
+}
+
+.making a{
+color:white;
+text-decoration:underline;
+}
+
 .nav{
 margin-top:28px;
 display:grid;
@@ -188,10 +214,13 @@ DEVOTIONAL RADIO
 
 <div class="contact">
 <br>
-Mentor Church of Christ: <br>440-255-9049 <br> 
+Mentor Church of Christ:<br>
+440-255-9049<br>
 7201 Burridge Avenue Mentor, OH 44060
 </div>
 
+<div class="making">
+<a href="why.html" target="_blank">The making of this site</a>
 </div>
 
 <script>
@@ -215,7 +244,7 @@ const durationText=document.getElementById("duration")
 function shuffle(array){
 for(let i=array.length-1;i>0;i--){
 const j=Math.floor(Math.random()*(i+1))
-;[array[i],array[j]]=[array[j],array[i]]
+[array[i],array[j]]=[array[j],array[i]]
 }
 }
 
