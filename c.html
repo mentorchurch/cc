@@ -8,6 +8,7 @@
 
 <title>MENTOR CHURCH OF CHRIST DEVOTIONAL RADIO</title>
 
+<!-- Christian cross icon -->
 <link rel="icon" type="image/svg+xml" href='data:image/svg+xml,
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
 <rect width="180" height="180" fill="black"/>
@@ -201,11 +202,8 @@ DEVOTIONAL RADIO
 <div class="nav">
 
 <a href="who.html" target="_blank">WHAT WE BELIEVE</a>
-
 <a href="https://drive.google.com/drive/folders/14kMswUspRipk9m5xHb2pmtIbK8ZtV2Pg" target="_blank">DOWNLOAD HYMNS</a>
-
 <a href="kjv.pdf" target="_blank">READ BIBLE</a>
-
 <a href="http://www.mentorchurchofchrist.com" target="_blank">CHURCH HOME</a>
 
 </div>
@@ -266,7 +264,6 @@ startTrack()
 function startTrack(){
 
 player.src = BASE + playlist[current]
-
 currentTrack.textContent = current+1
 
 player.play().catch(()=>{})
