@@ -218,6 +218,7 @@ const BASE="https://raw.githubusercontent.com/mentorchurch/cc/main/"
 
 let playlist=[]
 let current=0
+let playlistLoaded=false
 
 const player=document.getElementById("player")
 const currentTrack=document.getElementById("currentTrack")
@@ -251,12 +252,15 @@ return name.startsWith("c") && name.endsWith(".mp3")
 shuffle(playlist)
 
 trackCount.textContent=playlist.length
+playlistLoaded=true
 
 startTrack()
 
 }
 
 function startTrack(){
+
+if(playlist.length===0) return
 
 player.src=BASE+playlist[current]
 currentTrack.textContent=current+1
@@ -266,6 +270,8 @@ player.play().catch(()=>{})
 }
 
 function nextTrack(){
+
+if(!playlistLoaded) return
 
 current++
 
@@ -280,6 +286,8 @@ startTrack()
 
 function prevTrack(){
 
+if(!playlistLoaded) return
+
 current--
 
 if(current<0){
@@ -290,7 +298,12 @@ startTrack()
 
 }
 
-function togglePlay(){
+async function togglePlay(){
+
+if(!playlistLoaded){
+await buildPlaylist()
+return
+}
 
 if(!player.src){
 startTrack()
@@ -298,7 +311,7 @@ return
 }
 
 if(player.paused){
-player.play()
+player.play().catch(()=>{})
 }else{
 player.pause()
 }
