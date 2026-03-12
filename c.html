@@ -8,12 +8,8 @@
 
 <title>MENTOR CHURCH OF CHRIST DEVOTIONAL RADIO</title>
 
-<meta name="theme-color" content="#000000">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='black'/%3E%3Crect x='84' y='18' width='12' height='144' fill='white'/%3E%3Crect x='44' y='58' width='92' height='12' fill='white'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='black'/%3E%3Crect x='84' y='18' width='12' height='144' fill='white'/%3E%3Crect x='44' y='58' width='92' height='12' fill='white'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="cross.png">
+<link rel="apple-touch-icon" href="cross.png">
 
 <style>
 
@@ -29,7 +25,7 @@ text-align:center;
 width:92vw;
 max-width:900px;
 margin:auto;
-padding:32px 20px 40px 20px;
+padding:0 20px 40px 20px;
 box-sizing:border-box;
 }
 
@@ -155,6 +151,8 @@ color:black;
 
 <body>
 
+<br><br><br>
+
 <div class="player">
 
 <div class="title">
@@ -165,15 +163,15 @@ DEVOTIONAL RADIO
 <div class="info">
 <div>Your playing track #: <span id="currentTrack">0</span></div>
 <div>Total tracks in random playlist: <span id="trackCount">0</span></div>
-<div>Runtime <span id="runtimeText"4:52</span></div>
+<div>Runtime 4:52</div>
 </div>
 
-<audio id="player" preload="metadata" playsinline autoplay></audio>
+<audio id="player" preload="metadata"></audio>
 
 <div class="controls">
-<button type="button" onclick="prevTrack()">BACK</button>
-<button type="button" onclick="togglePlay()">PLAY / PAUSE</button>
-<button type="button" onclick="nextTrack()">FORWARD</button>
+<button onclick="prevTrack()">BACK</button>
+<button onclick="togglePlay()">PLAY / PAUSE</button>
+<button onclick="nextTrack()">FORWARD</button>
 </div>
 
 <div class="progressWrap">
@@ -191,205 +189,151 @@ DEVOTIONAL RADIO
 </div>
 
 <div class="nav">
+
 <a href="who.html" target="_blank" rel="noopener">WHAT WE BELIEVE</a>
+
 <a href="https://drive.google.com/drive/folders/14kMswUspRipk9m5xHb2pmtIbK8ZtV2Pg" target="_blank" rel="noopener">DOWNLOAD HYMNS</a>
+
 <a href="kjv.pdf" target="_blank" rel="noopener">READ BIBLE</a>
+
 <a href="http://www.mentorchurchofchrist.com" target="_blank" rel="noopener">CHURCH HOME</a>
+
 </div>
 
 <div class="contact">
+<br>
 Mentor Church of Christ:<br>
 440-255-9049<br>
 7201 Burridge Avenue Mentor, OH 44060
 </div>
 
 <div class="making">
-<BR>
-<a href="why.html" target="_blank" rel="noopener">The making of this site</a>
-</div>
-
+<a href="why.html" target="_blank">The making of this site</a>
 </div>
 
 <script>
 
-const API = "https://api.github.com/repos/mentorchurch/cc/contents/";
-const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/";
+const API="https://api.github.com/repos/mentorchurch/cc/contents/"
+const BASE="https://raw.githubusercontent.com/mentorchurch/cc/main/"
 
-let playlist = [];
-let current = -1;
+let playlist=[]
+let current=0
 
-const player = document.getElementById("player");
-const currentTrack = document.getElementById("currentTrack");
-const trackCount = document.getElementById("trackCount");
-const runtimeText = document.getElementById("runtimeText");
+const player=document.getElementById("player")
+const currentTrack=document.getElementById("currentTrack")
+const trackCount=document.getElementById("trackCount")
 
-const progress = document.getElementById("progress");
-const bar = document.getElementById("bar");
+const progress=document.getElementById("progress")
+const bar=document.getElementById("bar")
 
-const currentTimeText = document.getElementById("currentTime");
-const durationText = document.getElementById("duration");
+const currentTimeText=document.getElementById("currentTime")
+const durationText=document.getElementById("duration")
 
 function shuffle(array){
-for(let i = array.length - 1; i > 0; i--){
-const j = Math.floor(Math.random() * (i + 1));
-[array[i], array[j]] = [array[j], array[i]];
-}
-}
-
-function formatTime(seconds){
-if(!Number.isFinite(seconds) || seconds < 0) return "0:00";
-const m = Math.floor(seconds / 60);
-const s = Math.floor(seconds % 60);
-return m + ":" + (s < 10 ? "0" + s : s);
-}
-
-async function tryPlay(){
-try{
-await player.play();
-}catch(e){
-/* autoplay may be blocked until user interaction */
+for(let i=array.length-1;i>0;i--){
+const j=Math.floor(Math.random()*(i+1))
+[array[i],array[j]]=[array[j],array[i]]
 }
 }
 
 async function buildPlaylist(){
 
-try{
-const response = await fetch(API, {cache: "no-store"});
+const response=await fetch(API)
+const files=await response.json()
 
-if(!response.ok){
-throw new Error("Could not load file list.");
-}
-
-const files = await response.json();
-
-if(!Array.isArray(files)){
-throw new Error("Unexpected GitHub response.");
-}
-
-playlist = files
-.filter(file => {
-const name = file.name.toLowerCase();
-return name.startsWith("c") && name.endsWith(".mp3");
+playlist=files
+.filter(file=>{
+const name=file.name.toLowerCase()
+return name.startsWith("c") && name.endsWith(".mp3")
 })
-.map(file => file.name);
+.map(file=>file.name)
 
-if(playlist.length === 0){
-throw new Error("No matching mp3 files found.");
-}
+shuffle(playlist)
 
-shuffle(playlist);
+trackCount.textContent=playlist.length
 
-trackCount.textContent = playlist.length;
-current = 0;
-
-loadTrack(current, true);
-
-}catch(err){
-trackCount.textContent = "0";
-currentTrack.textContent = "0";
-runtimeText.textContent = "0:00";
-console.error(err);
-}
+startTrack()
 
 }
 
-function loadTrack(index, autoplayNow = true){
+function startTrack(){
 
-if(!playlist.length) return;
+player.src=BASE+playlist[current]
+currentTrack.textContent=current+1
 
-current = index;
-
-if(current < 0){
-current = playlist.length - 1;
-}
-
-if(current >= playlist.length){
-current = 0;
-}
-
-const fileName = playlist[current];
-player.src = BASE + encodeURIComponent(fileName);
-player.load();
-
-currentTrack.textContent = current + 1;
-bar.style.width = "0%";
-currentTimeText.textContent = "0:00";
-durationText.textContent = "0:00";
-runtimeText.textContent = "0:00";
-
-if(autoplayNow){
-tryPlay();
-}
+player.play().catch(()=>{})
 
 }
 
 function nextTrack(){
-if(!playlist.length) return;
-loadTrack(current + 1, true);
+
+current++
+
+if(current>=playlist.length){
+shuffle(playlist)
+current=0
+}
+
+startTrack()
+
 }
 
 function prevTrack(){
-if(!playlist.length) return;
-loadTrack(current - 1, true);
+
+current--
+
+if(current<0){
+current=playlist.length-1
+}
+
+startTrack()
+
 }
 
 function togglePlay(){
-if(!playlist.length) return;
 
 if(player.paused){
-tryPlay();
+player.play()
 }else{
-player.pause();
-}
-}
-
-player.addEventListener("ended", () => {
-nextTrack();
-});
-
-player.addEventListener("loadedmetadata", () => {
-if(Number.isFinite(player.duration)){
-durationText.textContent = formatTime(player.duration);
-runtimeText.textContent = formatTime(player.duration);
-}
-});
-
-player.addEventListener("timeupdate", () => {
-
-if(!player.duration) return;
-
-const percent = (player.currentTime / player.duration) * 100;
-bar.style.width = percent + "%";
-
-currentTimeText.textContent = formatTime(player.currentTime);
-durationText.textContent = formatTime(player.duration);
-runtimeText.textContent = formatTime(player.duration);
-
-});
-
-progress.addEventListener("click", (e) => {
-
-if(!player.duration) return;
-
-const rect = progress.getBoundingClientRect();
-const clickX = e.clientX - rect.left;
-const percent = clickX / rect.width;
-
-player.currentTime = percent * player.duration;
-
-});
-
-async function unlockAndPlay(){
-if(player.paused && playlist.length){
-await tryPlay();
-}
+player.pause()
 }
 
-document.addEventListener("click", unlockAndPlay, {once:true});
-document.addEventListener("touchstart", unlockAndPlay, {once:true});
-document.addEventListener("keydown", unlockAndPlay, {once:true});
+}
 
-window.addEventListener("load", buildPlaylist);
+player.addEventListener("ended",nextTrack)
+
+player.addEventListener("timeupdate",()=>{
+
+if(!player.duration) return
+
+const percent=(player.currentTime/player.duration)*100
+bar.style.width=percent+"%"
+
+currentTimeText.textContent=formatTime(player.currentTime)
+durationText.textContent=formatTime(player.duration)
+
+})
+
+progress.addEventListener("click",(e)=>{
+
+const rect=progress.getBoundingClientRect()
+const clickX=e.clientX-rect.left
+const percent=clickX/rect.width
+
+player.currentTime=percent*player.duration
+
+})
+
+function formatTime(seconds){
+
+const m=Math.floor(seconds/60)
+const s=Math.floor(seconds%60)
+
+return m+":"+(s<10?"0"+s:s)
+
+}
+
+window.onload=buildPlaylist
 
 </script>
 
