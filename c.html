@@ -292,6 +292,11 @@ startTrack()
 
 function togglePlay(){
 
+if(!player.src){
+startTrack()
+return
+}
+
 if(player.paused){
 player.play()
 }else{
@@ -333,7 +338,7 @@ return m+":"+(s<10?"0"+s:s)
 
 }
 
-window.onload = buildPlaylist
+window.onload=buildPlaylist
 
 </script>
 
