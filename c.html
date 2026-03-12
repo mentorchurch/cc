@@ -8,8 +8,8 @@
 
 <title>MENTOR CHURCH OF CHRIST DEVOTIONAL RADIO</title>
 
-<link rel="icon" type="image/png" href="cross.png">
-<link rel="apple-touch-icon" href="cross.png">
+<link rel="icon" type="image/png" href="./cross.png">
+<link rel="apple-touch-icon" href="./cross.png">
 
 <style>
 
@@ -163,7 +163,7 @@ DEVOTIONAL RADIO
 <div class="info">
 <div>Your playing track #: <span id="currentTrack">0</span></div>
 <div>Total tracks in random playlist: <span id="trackCount">0</span></div>
-<div>Runtime 4:52</div>
+<div>Runtime </div>
 </div>
 
 <audio id="player" preload="metadata"></audio>
@@ -333,7 +333,7 @@ return m+":"+(s<10?"0"+s:s)
 
 }
 
-window.onload=buildPlaylist
+window.onload = () => setTimeout(buildPlaylist,1500)
 
 </script>
 
