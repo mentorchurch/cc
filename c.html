@@ -237,6 +237,56 @@ const durationText = document.getElementById("duration");
 
 const audioExtensions = [".mp3", ".m4a", ".wav", ".ogg", ".aac", ".flac"];
 
+/* AUDIO PROCESSING */
+let audioContext = null;
+let sourceNode = null;
+let compressorNode = null;
+let makeupGainNode = null;
+let audioChainReady = false;
+
+function setupAudioProcessing(){
+if(audioChainReady) return;
+
+audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+sourceNode = audioContext.createMediaElementSource(player);
+compressorNode = audioContext.createDynamicsCompressor();
+makeupGainNode = audioContext.createGain();
+
+/*
+ Light compression for leveling only:
+ - raises quieter material
+ - gently tames louder peaks
+ - not meant to hard-limit
+*/
+compressorNode.threshold.value = -32;
+compressorNode.knee.value = 24;
+compressorNode.ratio.value = 2.5;
+compressorNode.attack.value = 0.03;
+compressorNode.release.value = 0.25;
+
+/*
+ Makeup gain:
+ 1.0 = no boost
+ 1.25 to 1.45 is a sane range
+*/
+makeupGainNode.gain.value = 1.35;
+
+sourceNode.connect(compressorNode);
+compressorNode.connect(makeupGainNode);
+makeupGainNode.connect(audioContext.destination);
+
+audioChainReady = true;
+}
+
+async function ensureAudioReady(){
+setupAudioProcessing();
+
+if(audioContext.state === "suspended"){
+await audioContext.resume();
+}
+}
+
 function isAudioFile(filename){
 const lower = filename.toLowerCase();
 return audioExtensions.some(ext => lower.endsWith(ext));
@@ -305,6 +355,7 @@ resetProgress();
 
 async function playCurrentTrack(){
 try{
+await ensureAudioReady();
 await player.play();
 }catch(error){
 console.error("Playback failed:", error);
