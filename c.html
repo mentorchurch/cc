@@ -221,6 +221,15 @@ const API = "https://api.github.com/repos/mentorchurch/cc/contents/";
 const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/";
 
 /*
+ INTRO FILE SETTINGS
+ open.mp3 is forced to the front only for the first 3 page loads.
+ After that, it is treated like a normal random track.
+*/
+const INTRO_FILE = "open.mp3";
+const INTRO_MAX_RELOADS = 3;
+const INTRO_STORAGE_KEY = "mentor_radio_open_mp3_intro_count";
+
+/*
  Safari skip:
  Safari is stricter with cross-origin media + Web Audio.
  Chrome/Edge can try compression.
@@ -254,6 +263,31 @@ let compressorNode = null;
 let makeupGainNode = null;
 let audioChainReady = false;
 let audioProcessingFailed = false;
+
+/* INTRO COUNT HELPERS */
+function getIntroCount(){
+try{
+const raw = localStorage.getItem(INTRO_STORAGE_KEY);
+const parsed = parseInt(raw || "0", 10);
+return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+}catch(error){
+console.warn("localStorage unavailable. Intro counter disabled.", error);
+return INTRO_MAX_RELOADS;
+}
+}
+
+function incrementIntroCount(){
+try{
+const count = getIntroCount();
+localStorage.setItem(INTRO_STORAGE_KEY, String(count + 1));
+}catch(error){
+console.warn("Could not save intro counter.", error);
+}
+}
+
+function shouldForceIntroFirst(){
+return getIntroCount() < INTRO_MAX_RELOADS;
+}
 
 function setupAudioProcessing(){
 if(audioChainReady || audioProcessingFailed || !USE_COMPRESSOR) return;
@@ -336,7 +370,22 @@ totalTracks.textContent = "0";
 return;
 }
 
+/*
+ Build shuffled list normally.
+ If intro mode is still active and open.mp3 exists,
+ remove it first, shuffle the rest, then put open.mp3 at the front.
+*/
+const hasIntroFile = playlist.includes(INTRO_FILE);
+const forceIntro = hasIntroFile && shouldForceIntroFirst();
+
+if(forceIntro){
+playlist = playlist.filter(file => file !== INTRO_FILE);
 shuffle(playlist);
+playlist.unshift(INTRO_FILE);
+incrementIntroCount();
+}else{
+shuffle(playlist);
+}
 
 current = 0;
 ready = true;
@@ -345,9 +394,17 @@ totalTracks.textContent = playlist.length;
 currentTrack.textContent = current + 1;
 
 if(USE_COMPRESSOR){
+if(forceIntro){
+statusText.textContent = "...Playlist ready...Enhanced Audio Enabled...Intro First...";
+}else{
 statusText.textContent = "...Playlist ready...Enhanced Audio Enabled...";
+}
+}else{
+if(forceIntro){
+statusText.textContent = "...Playlist ready...Standard Audio...Intro First...";
 }else{
 statusText.textContent = "...Playlist ready...Standard Audio...";
+}
 }
 
 }catch(error){
