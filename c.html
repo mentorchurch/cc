@@ -220,6 +220,17 @@ Mentor Church of Christ:<br>
 const API = "https://api.github.com/repos/mentorchurch/cc/contents/";
 const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/";
 
+/*
+ IMPORTANT:
+ With audio hosted on raw.githubusercontent.com, browser-side Web Audio
+ compression can mute playback because of cross-origin restrictions.
+
+ Keep this FALSE for your current GitHub setup so audio works.
+ If you later move audio files to the same domain as the page, or to a host
+ that fully allows Web Audio/CORS, change this to true.
+*/
+const USE_COMPRESSOR = false;
+
 let playlist = [];
 let current = 0;
 let ready = false;
@@ -237,7 +248,7 @@ const durationText = document.getElementById("duration");
 
 const audioExtensions = [".mp3", ".m4a", ".wav", ".ogg", ".aac", ".flac"];
 
-/* AUDIO PROCESSING */
+/* OPTIONAL AUDIO PROCESSING */
 let audioContext = null;
 let sourceNode = null;
 let compressorNode = null;
@@ -246,7 +257,7 @@ let audioChainReady = false;
 let audioProcessingFailed = false;
 
 function setupAudioProcessing(){
-if(audioChainReady || audioProcessingFailed) return;
+if(audioChainReady || audioProcessingFailed || !USE_COMPRESSOR) return;
 
 try{
 audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -292,7 +303,7 @@ makeupGainNode = null;
 }
 
 async function ensureAudioReady(){
-if(audioProcessingFailed) return;
+if(!USE_COMPRESSOR || audioProcessingFailed) return;
 
 setupAudioProcessing();
 
