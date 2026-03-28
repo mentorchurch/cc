@@ -219,8 +219,11 @@ Mentor Church of Christ:<br>
 
 /*
  USER ADJUSTABLE INTERRUPT TIMER
- Change this number to whatever you want.
- Example: 20 = every 20 minutes, 40 = every 40 minutes, 60 = every 60 minutes.
+ Change this number only.
+ Example:
+ 20 = every 20 minutes
+ 40 = every 40 minutes
+ 60 = every 60 minutes
 */
 const INTERRUPT_MINUTES = 5;
 
@@ -238,8 +241,8 @@ const INTRO_STORAGE_KEY = "mentor_radio_open_mp3_intro_count";
 
 /*
  INTERRUPT FILE SETTINGS
- open.mp3 will interrupt playback every X minutes based on INTERRUPT_MINUTES above,
- then resume the previous track where it left off.
+ open.mp3 will be scheduled every X minutes,
+ but it will wait until the current track finishes.
 */
 const INTERRUPT_FILE = "open.mp3";
 const INTERRUPT_INTERVAL = INTERRUPT_MINUTES * 60 * 1000;
@@ -280,9 +283,8 @@ let audioChainReady = false;
 let audioProcessingFailed = false;
 
 /* INTERRUPT STATE */
+let interruptPending = false;
 let interrupting = false;
-let savedTime = 0;
-let savedTrack = 0;
 
 /* INTRO COUNT HELPERS */
 function getIntroCount(){
@@ -497,18 +499,19 @@ player.pause();
 }
 }
 
-/* INTERRUPT HANDLER */
-async function playInterrupt(){
-if(!ready || playlist.length === 0 || interrupting) return;
+player.addEventListener("ended", async () => {
 
-/* if nothing has started yet, do not interrupt */
-if(!player.src) return;
+/* if open.mp3 just finished, resume normal playlist flow */
+if(interrupting){
+interrupting = false;
+nextTrack();
+return;
+}
 
+/* if timer expired earlier, play open.mp3 now */
+if(interruptPending){
+interruptPending = false;
 interrupting = true;
-
-/* save current state */
-savedTime = player.currentTime;
-savedTrack = current;
 
 player.src = BASE + encodeURIComponent(INTERRUPT_FILE);
 player.load();
@@ -519,19 +522,14 @@ await player.play();
 }catch(error){
 console.error("Interrupt playback failed:", error);
 interrupting = false;
-}
-}
-
-player.addEventListener("ended", () => {
-if(interrupting){
-interrupting = false;
-current = savedTrack;
-loadTrack();
-player.currentTime = savedTime;
-playCurrentTrack();
-}else{
 nextTrack();
 }
+
+return;
+}
+
+/* normal behavior */
+nextTrack();
 });
 
 player.addEventListener("timeupdate", () => {
@@ -567,7 +565,16 @@ return mins + ":" + (secs < 10 ? "0" + secs : secs);
 }
 
 buildPlaylist();
-setInterval(playInterrupt, INTERRUPT_INTERVAL);
+
+/*
+ Timer does NOT interrupt immediately.
+ It only sets a flag.
+ open.mp3 waits until the current track ends.
+*/
+setInterval(() => {
+if(!ready || playlist.length === 0) return;
+interruptPending = true;
+}, INTERRUPT_INTERVAL);
 
 </script>
 
