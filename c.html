@@ -217,6 +217,13 @@ Mentor Church of Christ:<br>
 
 <script>
 
+/*
+ USER ADJUSTABLE INTERRUPT TIMER
+ Change this number to whatever you want.
+ Example: 20 = every 20 minutes, 40 = every 40 minutes, 60 = every 60 minutes.
+*/
+const INTERRUPT_MINUTES = 5;
+
 const API = "https://api.github.com/repos/mentorchurch/cc/contents/";
 const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/";
 
@@ -228,6 +235,14 @@ const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/";
 const INTRO_FILE = "open.mp3";
 const INTRO_MAX_RELOADS = 100;
 const INTRO_STORAGE_KEY = "mentor_radio_open_mp3_intro_count";
+
+/*
+ INTERRUPT FILE SETTINGS
+ open.mp3 will interrupt playback every X minutes based on INTERRUPT_MINUTES above,
+ then resume the previous track where it left off.
+*/
+const INTERRUPT_FILE = "open.mp3";
+const INTERRUPT_INTERVAL = INTERRUPT_MINUTES * 60 * 1000;
 
 /*
  Safari skip:
@@ -263,6 +278,11 @@ let compressorNode = null;
 let makeupGainNode = null;
 let audioChainReady = false;
 let audioProcessingFailed = false;
+
+/* INTERRUPT STATE */
+let interrupting = false;
+let savedTime = 0;
+let savedTrack = 0;
 
 /* INTRO COUNT HELPERS */
 function getIntroCount(){
@@ -477,8 +497,41 @@ player.pause();
 }
 }
 
+/* INTERRUPT HANDLER */
+async function playInterrupt(){
+if(!ready || playlist.length === 0 || interrupting) return;
+
+/* if nothing has started yet, do not interrupt */
+if(!player.src) return;
+
+interrupting = true;
+
+/* save current state */
+savedTime = player.currentTime;
+savedTrack = current;
+
+player.src = BASE + encodeURIComponent(INTERRUPT_FILE);
+player.load();
+
+try{
+await ensureAudioReady();
+await player.play();
+}catch(error){
+console.error("Interrupt playback failed:", error);
+interrupting = false;
+}
+}
+
 player.addEventListener("ended", () => {
+if(interrupting){
+interrupting = false;
+current = savedTrack;
+loadTrack();
+player.currentTime = savedTime;
+playCurrentTrack();
+}else{
 nextTrack();
+}
 });
 
 player.addEventListener("timeupdate", () => {
@@ -514,6 +567,7 @@ return mins + ":" + (secs < 10 ? "0" + secs : secs);
 }
 
 buildPlaylist();
+setInterval(playInterrupt, INTERRUPT_INTERVAL);
 
 </script>
 
