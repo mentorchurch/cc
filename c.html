@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>MENTOR CHURCH OF CHRIST DEVOTIONAL RADIO</title>
+<title>CHURCH OF CHRIST <br>DEVOTIONAL RADIO</title>
 
 <link rel="icon" href="./cross.png">
 <link rel="apple-touch-icon" href="./cross.png">
@@ -159,26 +159,27 @@ font-size:14px;
 
 <div class="player">
 
-<div class="title">
-MENTOR CHURCH OF CHRIST<br>
+<div class="title"><br>
+<BR>
+CHURCH OF CHRIST<br>
 DEVOTIONAL RADIO
 </div>
 
-<div class="info">
-<div>You're playing track #: <span id="currentTrack">0</span></div>
-<div>Total tracks in random playlist: <span id="totalTracks">0</span></div>
-<div>Runtime: 6hr 08min</div>
+<div class="info"><br>
+<div>You're playing track #: <span id="currentTrack">0</span></div><br>
+<div>Total tracks in random playlist: <span id="totalTracks">0</span></div><br>
+<div>Runtime: 5hr 23min</div><br>
 <div class="status" id="status">...Loading playlist...</div>
 </div>
 
-<audio id="player" preload="metadata" crossorigin="anonymous"></audio>
+<audio id="player" preload="metadata" crossorigin="anonymous"></audio><br>
 
 <div class="controls">
 <button onclick="prevTrack()">BACK</button>
 <button onclick="togglePlay()">PLAY / PAUSE</button>
 <button onclick="nextTrack()">FORWARD</button>
 </div>
-
+<br>
 <div class="progressWrap">
 <div class="progress" id="progress">
 <div class="bar" id="bar"></div>
@@ -187,32 +188,6 @@ DEVOTIONAL RADIO
 
 <div class="time">
 <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
-</div>
-
-<div class="scripture">
-“Therefore we are buried with him by baptism into death: that like as Christ was raised up from the dead by the glory of the Father, even so we also should walk in newness of life.” – Romans 6:4
-</div>
-
-<div class="nav">
-<a href="who.html" target="_blank">WHAT WE BELIEVE</a>
-<a href="https://drive.google.com/drive/folders/14kMswUspRipk9m5xHb2pmtIbK8ZtV2Pg" target="_blank">DOWNLOAD HYMNS</a>
-<a href="kjv.pdf" target="_blank">READ BIBLE</a>
-<a href="http://www.mentorchurchofchrist.com" target="_blank">CHURCH HOME</a>
-</div>
-
-<div class="contact">
-<br>
-Mentor Church of Christ:<br>
-440-255-9049<br>
-7201 Burridge Avenue Mentor, OH 44060
-</div>
-
-<br>
-
-<div class="making">
-<a href="why.html" target="_blank">The making of this site</a>
-</div>
-
 </div>
 
 <script>
@@ -225,7 +200,7 @@ Mentor Church of Christ:<br>
  40 = every 40 minutes
  60 = every 60 minutes
 */
-const INTERRUPT_MINUTES = 12;
+const INTERRUPT_MINUTES = 120;
 
 const API = "https://api.github.com/repos/mentorchurch/cc/contents/";
 const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/";
@@ -236,7 +211,7 @@ const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/";
  After that, it is treated like a normal random track.
 */
 const INTRO_FILE = "open.mp3";
-const INTRO_MAX_RELOADS = 100;
+const INTRO_MAX_RELOADS = 1;
 const INTRO_STORAGE_KEY = "mentor_radio_open_mp3_intro_count";
 
 /*
