@@ -147,17 +147,19 @@ color: black;
 
 <div class="player">
 
-<div class="title"<br>
+<div class="title">
+<br>
 <br>
 <br>
 CHURCH OF CHRIST DEVOTIONAL RADIO
 </div>
 
 <div class="info">
-<div>You're playing track #: <span id="currentTrack">0</span></div>
-<div>Total tracks in random playlist automatically generated upon pageload:<br> <span id="totalTracks">0</span></div>
+<div>You're playing track # <span id="currentTrack">0</span></div>
+<div>Total tracks: <span id="totalTracks">0</span></div>
 <div>Runtime: 7hr 04min</div>
 <br>
+<div style="font-size: 0.9em; opacity: 0.8; margin-top: 4px;">-Random playlist automatically generated upon pageload-</div>
 <div class="status" id="status">...Loading playlist...</div>
 </div>
 
@@ -185,52 +187,26 @@ CHURCH OF CHRIST DEVOTIONAL RADIO
 <div style="margin-top: 8px;">We’ve also streamlined this site for a cleaner appearance.</div>
 </div>
 
-<!-- NAVIGATION BUTTONS (Same layout size as core controls) -->
 <BR>
-<!-- TARGETED NEW DOWNLOAD BUTTON -->
 <div class="download-container">
-<a href="https://mentorchurch.github.io/cc/church" target="_blank" class="download-btn">DOWNLOAD HYMNS</a>
+<a href="https://mentorchurch.github.io/cc/church/" target="_blank" class="download-btn">DOWNLOAD HYMNS</a>
 </div>
 
 </div>
 
 <script>
 
-/*
- USER ADJUSTABLE INTERRUPT TIMER
- Change this number only.
- Example:
- 20 = every 20 minutes
- 40 = every 40 minutes
- 60 = every 60 minutes
-*/
-const INTERRUPT_MINUTES = 120;
-
 const API = "https://api.github.com/repos/mentorchurch/cc/contents/";
 const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/";
 
 /*
  INTRO FILE SETTINGS
- open.mp3 is forced to the front only for the first 3 page loads.
- After that, it is treated like a normal random track.
+ open.mp3 is forced to the front only for the first page load.
 */
 const INTRO_FILE = "open.mp3";
 const INTRO_MAX_RELOADS = 1;
 const INTRO_STORAGE_KEY = "mentor_radio_open_mp3_intro_count";
 
-/*
- INTERRUPT FILE SETTINGS
- open.mp3 will be scheduled every X minutes,
- but it will wait until the current track finishes.
-*/
-const INTERRUPT_FILE = "open.mp3";
-const INTERRUPT_INTERVAL = INTERRUPT_MINUTES * 60 * 1000;
-
-/*
- Safari skip:
- Safari is stricter with cross-origin media + Web Audio.
- Chrome/Edge can try compression.
-*/
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) && /Apple Computer/i.test(navigator.vendor);
 const USE_COMPRESSOR = !isSafari;
 
@@ -261,10 +237,6 @@ let makeupGainNode = null;
 let audioChainReady = false;
 let audioProcessingFailed = false;
 
-/* INTERRUPT STATE */
-let interruptPending = false;
-let interrupting = false;
-
 /* INTRO COUNT HELPERS */
 function getIntroCount(){
 try{
@@ -272,7 +244,6 @@ const raw = localStorage.getItem(INTRO_STORAGE_KEY);
 const parsed = parseInt(raw || "0", 10);
 return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 }catch(error){
-console.warn("localStorage unavailable. Intro counter disabled.", error);
 return INTRO_MAX_RELOADS;
 }
 }
@@ -281,9 +252,7 @@ function incrementIntroCount(){
 try{
 const count = getIntroCount();
 localStorage.setItem(INTRO_STORAGE_KEY, String(count + 1));
-}catch(error){
-console.warn("Could not save intro counter.", error);
-}
+}catch(error){}
 }
 
 function shouldForceIntroFirst(){
@@ -300,7 +269,7 @@ sourceNode = audioContext.createMediaElementSource(player);
 compressorNode = audioContext.createDynamicsCompressor();
 makeupGainNode = audioContext.createGain();
 
-/* light compression only */
+/* light compression */
 compressorNode.threshold.value = -32;
 compressorNode.knee.value = 24;
 compressorNode.ratio.value = 2.5;
@@ -317,7 +286,6 @@ makeupGainNode.connect(audioContext.destination);
 audioChainReady = true;
 
 }catch(error){
-console.warn("Compression unavailable, using normal playback.", error);
 audioProcessingFailed = true;
 audioChainReady = false;
 audioContext = null;
@@ -333,7 +301,9 @@ if(!USE_COMPRESSOR || audioProcessingFailed) return;
 setupAudioProcessing();
 
 if(audioContext && audioContext.state === "suspended"){
+try {
 await audioContext.resume();
+} catch(e) {}
 }
 }
 
@@ -349,15 +319,13 @@ const j = Math.floor(Math.random() * (i + 1));
 }
 }
 
-async function buildPlaylist(){
-try{
+async function buildPlaylist() {
+try {
 statusText.textContent = "...Loading playlist...";
 
 const response = await fetch(API, { cache: "no-store" });
 
-if(!response.ok){
-throw new Error("GitHub API request failed.");
-}
+if(!response.ok) return;
 
 const files = await response.json();
 
@@ -366,16 +334,10 @@ playlist = files
 .map(file => file.name);
 
 if(playlist.length === 0){
-statusText.textContent = "No audio files found.";
 totalTracks.textContent = "0";
 return;
 }
 
-/*
- Build shuffled list normally.
- If intro mode is still active and open.mp3 exists,
- remove it first, shuffle the rest, then put open.mp3 at the front.
-*/
 const hasIntroFile = playlist.includes(INTRO_FILE);
 const forceIntro = hasIntroFile && shouldForceIntroFirst();
 
@@ -395,22 +357,12 @@ totalTracks.textContent = playlist.length;
 currentTrack.textContent = current + 1;
 
 if(USE_COMPRESSOR){
-if(forceIntro){
 statusText.textContent = "...Playlist ready...Enhanced Audio Enabled...";
 }else{
-statusText.textContent = "...Playlist ready...Enhanced Audio Enabled...";
-}
-}else{
-if(forceIntro){
 statusText.textContent = "...Playlist ready...Standard Audio only...";
-}else{
-statusText.textContent = "...Playlist ready...Standard Audio only...";
-}
 }
 
 }catch(error){
-console.error(error);
-statusText.textContent = "Could not load playlist.";
 totalTracks.textContent = "0";
 }
 }
@@ -435,9 +387,7 @@ async function playCurrentTrack(){
 try{
 await ensureAudioReady();
 await player.play();
-}catch(error){
-console.error("Playback failed:", error);
-}
+}catch(error){}
 }
 
 function nextTrack(){
@@ -478,36 +428,7 @@ player.pause();
 }
 }
 
-player.addEventListener("ended", async () => {
-
-/* if open.mp3 just finished, resume normal playlist flow */
-if(interrupting){
-interrupting = false;
-nextTrack();
-return;
-}
-
-/* if timer expired earlier, play open.mp3 now */
-if(interruptPending){
-interruptPending = false;
-interrupting = true;
-
-player.src = BASE + encodeURIComponent(INTERRUPT_FILE);
-player.load();
-
-try{
-await ensureAudioReady();
-await player.play();
-}catch(error){
-console.error("Interrupt playback failed:", error);
-interrupting = false;
-nextTrack();
-}
-
-return;
-}
-
-/* normal behavior */
+player.addEventListener("ended", () => {
 nextTrack();
 });
 
@@ -544,16 +465,6 @@ return mins + ":" + (secs < 10 ? "0" + secs : secs);
 }
 
 buildPlaylist();
-
-/*
- Timer does NOT interrupt immediately.
- It only sets a flag.
- open.mp3 waits until the current track ends.
-*/
-setInterval(() => {
-if(!ready || playlist.length === 0) return;
-interruptPending = true;
-}, INTERRUPT_INTERVAL);
 
 </script>
 
