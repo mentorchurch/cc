@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>CHURCH OF CHRIST DEVOTIONAL RADIO</title>
+<title>CHURCH OF CHRIST <br>DEVOTIONAL RADIO</title>
 
 <link rel="icon" href="./cross.png">
 <link rel="apple-touch-icon" href="./cross.png">
@@ -25,14 +25,14 @@ text-align:center;
 width:92vw;
 max-width:900px;
 margin:auto;
-padding:40px 20px;
+padding:0 20px 40px 20px;
 box-sizing:border-box;
 }
 
 .title{
 font-size:clamp(22px,4vw,34px);
 line-height:1.2;
-margin-bottom:25px;
+margin-bottom:15px;
 text-transform:uppercase;
 }
 
@@ -42,36 +42,23 @@ font-size:clamp(14px,2.2vw,20px);
 line-height:1.5;
 }
 
-/* ALL BUTTONS (CONTROLS & NAVIGATION) ARE NOW STANDARDIZED */
-.controls, .nav{
+.controls{
 display:flex;
 justify-content:center;
 flex-wrap:wrap;
 gap:12px;
-margin-top:20px;
-margin-bottom:20px;
 }
 
-.controls button, .nav a{
-display:inline-flex;
-justify-content:center;
-align-items:center;
-box-sizing:border-box;
-min-width:140px; /* Standardizes width to match buttons */
-height:46px;     /* Standardizes height across control & nav buttons */
+.controls button{
 padding:10px 22px;
 font-size:clamp(14px,2vw,18px);
 background:black;
 color:white;
 border:1px solid white;
 cursor:pointer;
-text-decoration:none;
-text-transform:uppercase;
-font-family:Arial, Helvetica, sans-serif;
-transition: background 0.2s, color 0.2s;
 }
 
-.controls button:hover, .nav a:hover{
+.controls button:hover{
 background:white;
 color:black;
 }
@@ -102,41 +89,64 @@ transition:width 0.15s linear;
 .time{
 margin-top:6px;
 font-size:clamp(12px,2vw,16px);
-margin-bottom:25px;
+}
+
+.scripture{
+margin-top:28px;
+font-style:italic;
+line-height:1.6;
+font-size:clamp(14px,2.2vw,18px);
+padding:0 10px;
+text-align:center;
+}
+
+.contact{
+margin-top:18px;
+font-size:clamp(13px,2vw,16px);
+text-align:center;
+}
+
+.nav{
+margin-top:28px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px;
+max-width:380px;
+margin-left:auto;
+margin-right:auto;
+}
+
+.nav a{
+display:flex;
+justify-content:center;
+align-items:center;
+height:62px;
+background:black;
+color:white;
+border:1px solid white;
+text-decoration:none;
+text-transform:uppercase;
+font-size:14px;
+}
+
+.nav a:hover{
+background:white;
+color:black;
+}
+
+.making{
+margin-top:12px;
+text-align:center;
+}
+
+.making a{
+color:white;
+text-decoration:underline;
 }
 
 .status{
 margin-top:10px;
 font-size:14px;
-}
-
-/* THE SPECIAL BIG DOWNLOAD BUTTON STYLE */
-.download-container {
-margin-top:40px;
-display:flex;
-justify-content:center;
-}
-
-.download-btn {
-display:inline-flex;
-justify-content:center;
-align-items:center;
-width: min(92vw, 400px); /* Intentionally wider/bigger */
-height: 58px;            /* Taller than the normal buttons */
-font-size: clamp(16px, 2.5vw, 20px);
-font-weight: bold;
-background: black;
-color: white;
-border: 2px solid white; /* Slightly thicker border */
-text-decoration: none;
-text-transform: uppercase;
-cursor: pointer;
-transition: background 0.2s, color 0.2s;
-}
-
-.download-btn:hover {
-background: white;
-color: black;
 }
 
 </style>
@@ -145,30 +155,30 @@ color: black;
 
 <body>
 
+<br><br><br>
+
 <div class="player">
 
-<div class="title"<br>
-<br>
-<br>
+<div class="title"><br>
+<BR>
 CHURCH OF CHRIST DEVOTIONAL RADIO
 </div>
 
-<div class="info">
-<div>You're playing track #: <span id="currentTrack">0</span></div>
-<div>Total tracks in random playlist: <span id="totalTracks">0</span></div>
-<div>Runtime: 7hr 04min</div>
-<br>
+<div class="info"><br>
+<div>You're playing track #: <span id="currentTrack">0</span></div><br>
+<div>Total tracks in random playlist: <span id="totalTracks">0</span></div><br>
+<div>Runtime: 7hr 04min</div><br>
 <div class="status" id="status">...Loading playlist...</div>
 </div>
 
-<audio id="player" preload="metadata" crossorigin="anonymous"></audio>
+<audio id="player" preload="metadata" crossorigin="anonymous"></audio><br>
 
 <div class="controls">
 <button onclick="prevTrack()">BACK</button>
 <button onclick="togglePlay()">PLAY / PAUSE</button>
 <button onclick="nextTrack()">FORWARD</button>
 </div>
-
+<br>
 <div class="progressWrap">
 <div class="progress" id="progress">
 <div class="bar" id="bar"></div>
@@ -178,22 +188,9 @@ CHURCH OF CHRIST DEVOTIONAL RADIO
 <div class="time">
 <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
 </div>
-
-<div class="info">
-<BR>
-<div>GOOD NEWS:<br> AS OF 7/15/26 WE HAVE ADDED 54 NEW HYMNS TO THE ROTATION!</div>
-<div style="margin-top: 8px;">We’ve also streamlined this site for a cleaner appearance.</div>
-</div>
-
-<!-- NAVIGATION BUTTONS (Same layout size as core controls) -->
-<BR>
-<!-- TARGETED NEW DOWNLOAD BUTTON -->
-<div class="download-container">
-<a href="YOUR_URL_GOES_HERE" target="_blank" class="download-btn">DOWNLOAD HYMNS</a>
-</div>
-
-</div>
-
+<div class="info"><br>
+<div>GOOD NEWS: AS OF 7/15/26 WE HAVE ADDED 54 NEW HYMNS TO THE ROTATION!<BR>
+We’ve also streamlined this site for a cleaner appearance.
 <script>
 
 /*
