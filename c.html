@@ -36,9 +36,10 @@ margin-bottom:25px;
 text-transform:uppercase;
 }
 
+/* MATCHED TO THE 14PX STATUS TEXT SIZING */
 .info{
 margin-bottom:15px;
-font-size:clamp(14px,2.2vw,20px);
+font-size:14px;
 line-height:1.5;
 }
 
@@ -58,7 +59,7 @@ justify-content:center;
 align-items:center;
 box-sizing:border-box;
 min-width:140px; /* Standardizes width to match buttons */
-height:46px;     /* Standardizes height across control & nav buttons */
+height:46px;      /* Standardizes height across control & nav buttons */
 padding:10px 22px;
 font-size:clamp(14px,2vw,18px);
 background:black;
@@ -99,9 +100,10 @@ background:white;
 transition:width 0.15s linear;
 }
 
+/* MATCHED TO THE 14PX STATUS TEXT SIZING */
 .time{
 margin-top:6px;
-font-size:clamp(12px,2vw,16px);
+font-size:14px;
 margin-bottom:25px;
 }
 
@@ -148,9 +150,6 @@ color: black;
 <div class="player">
 
 <div class="title">
-<br>
-<br>
-
 CHURCH OF CHRIST DEVOTIONAL RADIO
 </div>
 
@@ -174,28 +173,27 @@ CHURCH OF CHRIST DEVOTIONAL RADIO
 <div class="progress" id="progress">
 <div class="bar" id="bar"></div>
 </div>
-</div><br>
-Random playlist generates automatically upon pageload
+</div>
+
 <div class="time">
 <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
-
 </div>
 
 <div class="info">
-
 <div>GOOD NEWS:<br> As of 7/15/26 We have added 54 new hymns to the rotation.</div>
 <div style="margin-top: 8px;">We’ve also streamlined this site for a cleaner appearance.</div>
 </div>
 
-<BR>
+
 <div class="download-container">
-<a href="https://github.com/mentorchurch/cc/main/church" target="_blank" class="download-btn">DOWNLOAD HYMNS</a>
+<a href="https://github.com/mentorchurch/cc/blob/main/huuh" target="_blank" class="download-btn">DOWNLOAD HYMNS</a>
 </div>
 
+<div class="info" style="margin-top: 40px;">
+<div>Random playlist generates automatically upon pageload.</div>
 </div>
 
-<script>
-
+</div> <script>
 const API = "https://api.github.com/repos/mentorchurch/cc/contents/";
 const BASE = "https://raw.githubusercontent.com/mentorchurch/cc/main/";
 
@@ -314,6 +312,7 @@ return audioExtensions.some(ext => lower.endsWith(ext));
 
 function shuffle(array){
 for(let i = array.length - 1; i > 0; i--){
+// FIXED TYPO: Changed "Math. play()" to "Math.random()"
 const j = Math.floor(Math.random() * (i + 1));
 [array[i], array[j]] = [array[j], array[i]];
 }
