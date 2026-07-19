@@ -156,7 +156,7 @@ CHURCH OF CHRIST DEVOTIONAL RADIO
 <div class="info">
 <div>You're playing track # <span id="currentTrack">0</span></div>
 <div>Total tracks: <span id="totalTracks">0</span></div>
-<div>Runtime: 7hr 04min</div>
+<div>Runtime: 7hr 23min</div>
 <br>
 <div class="status" id="status">...Loading playlist...</div>
 </div>
@@ -269,12 +269,12 @@ makeupGainNode = audioContext.createGain();
 /* light compression */
 compressorNode.threshold.value = -32;
 compressorNode.knee.value = 24;
-compressorNode.ratio.value = 2.5;
+compressorNode.ratio.value = 1.8;
 compressorNode.attack.value = 0.03;
 compressorNode.release.value = 0.25;
 
 /* makeup gain */
-makeupGainNode.gain.value = 1.35;
+makeupGainNode.gain.value = 1.15;
 
 sourceNode.connect(compressorNode);
 compressorNode.connect(makeupGainNode);
